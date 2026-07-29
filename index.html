@@ -1,0 +1,806 @@
+29 Jul, 15:24
+
+
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>AramKosto Official</title>
+ <style>
+ :root {
+ --bg-color: #0b0f19;
+ --card-bg: rgba(30, 41, 59, 0.7);
+ --card-border: rgba(255, 255, 255, 0.1);
+ --accent: #3b82f6;
+ --accent-gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
+ --accent-hover: #2563eb;
+ --text: #f8fafc;
+ --text-muted: #94a3b8;
+ --danger: #ef4444;
+ }
+
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+ }
+
+ body {
+ background-color: var(--bg-color);
+ background-image: 
+ radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+ radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
+ background-attachment: fixed;
+ color: var(--text);
+ min-height: 100vh;
+ }
+
+ /* Loading Screen */
+ #loader-wrapper {
+ position: fixed;
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: 100%;
+ background-color: #05070f;
+ display: flex;
+ flex-direction: column;
+ justify-content: center;
+ align-items: center;
+ z-index: 9999;
+ transition: opacity 0.8s ease, visibility 0.8s ease;
+ }
+
+ .brand-title {
+ font-size: 4rem;
+ font-weight: 900;
+ letter-spacing: 6px;
+ background: var(--accent-gradient);
+ -webkit-background-clip: text;
+ -webkit-text-fill-color: transparent;
+ animation: fadeInScale 1.8s ease-in-out forwards;
+ opacity: 0;
+ text-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+ }
+
+ .loading-bar {
+ width: 220px;
+ height: 4px;
+ background: rgba(255, 255, 255, 0.1);
+ margin-top: 25px;
+ border-radius: 4px;
+ overflow: hidden;
+ position: relative;
+ }
+
+ .loading-progress {
+ width: 0%;
+ height: 100%;
+ background: var(--accent-gradient);
+ animation: load 2.2s ease-in-out forwards;
+ border-radius: 4px;
+ }
+
+ .loading-text {
+ margin-top: 12px;
+ font-size: 0.95rem;
+ color: var(--text-muted);
+ letter-spacing: 1px;
+ }
+
+ @keyframes fadeInScale {
+ 0% { opacity: 0; transform: scale(0.85); }
+ 100% { opacity: 1; transform: scale(1); }
+ }
+
+ @keyframes load {
+ 0% { width: 0%; }
+ 100% { width: 100%; }
+ }
+
+ /* Navigation Header */
+ header {
+ background-color: rgba(15, 23, 42, 0.9);
+ backdrop-filter: blur(12px);
+ -webkit-backdrop-filter: blur(12px);
+ padding: 1rem 2rem;
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ border-bottom: 1px solid var(--card-border);
+ position: sticky;
+ top: 0;
+ z-index: 100;
+ }
+
+ .logo {
+ font-size: 1.6rem;
+ font-weight: 800;
+ background: var(--accent-gradient);
+ -webkit-background-clip: text;
+ -webkit-text-fill-color: transparent;
+ }
+
+ /* 3-Line Hamburger Icon */
+ .menu-toggle {
+ display: none;
+ flex-direction: column;
+ justify-content: space-between;
+ width: 30px;
+ height: 21px;
+ cursor: pointer;
+ z-index: 101;
+ }
+
+ .menu-toggle span {
+ display: block;
+ height: 3px;
+ width: 100%;
+ background-color: var(--text);
+ border-radius: 3px;
+ transition: all 0.3s ease-in-out;
+ }
+
+ /* Hamburger Animation */
+ .menu-toggle.open span:nth-child(1) {
+ transform: translateY(9px) rotate(45deg);
+ }
+ .menu-toggle.open span:nth-child(2) {
+ opacity: 0;
+ }
+ .menu-toggle.open span:nth-child(3) {
+ transform: translateY(-9px) rotate(-45deg);
+ }
+
+ nav {
+ display: flex;
+ gap: 0.5rem;
+ }
+
+ nav button {
+ background: transparent;
+ border: 1px solid transparent;
+ color: var(--text);
+ padding: 0.6rem 1.2rem;
+ cursor: pointer;
+ font-size: 0.95rem;
+ font-weight: 600;
+ border-radius: 8px;
+ transition: all 0.3s ease;
+ }
+
+ nav button:hover, nav button.active {
+ background: rgba(59, 130, 246, 0.15);
+ border-color: rgba(59, 130, 246, 0.4);
+ color: #60a5fa;
+ }
+
+ /* Responsive Mobile Styles */
+ @media (max-width: 768px) {
+ .menu-toggle {
+ display: flex;
+ }
+
+ nav {
+ position: absolute;
+ top: 100%;
+ left: 0;
+ width: 100%;
+ background-color: rgba(15, 23, 42, 0.95);
+ backdrop-filter: blur(16px);
+ flex-direction: column;
+ padding: 1rem 0;
+ border-bottom: 1px solid var(--card-border);
+ display: none;
+ box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+ }
+
+ nav.active {
+ display: flex;
+ }
+
+ nav button {
+ width: 90%;
+ margin: 0.3rem auto;
+ text-align: center;
+ padding: 0.8rem;
+ }
+ }
+
+ /* Main Content */
+ .container {
+ max-width: 950px;
+ margin: 2.5rem auto;
+ padding: 0 1.5rem;
+ }
+
+ .tab-content {
+ display: none;
+ background: var(--card-bg);
+ backdrop-filter: blur(16px);
+ -webkit-backdrop-filter: blur(16px);
+ padding: 2.5rem;
+ border-radius: 16px;
+ border: 1px solid var(--card-border);
+ box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+ animation: fadeIn 0.4s ease;
+ }
+
+ .tab-content.active {
+ display: block;
+ }
+
+ @keyframes fadeIn {
+ from { opacity: 0; transform: translateY(10px); }
+ to { opacity: 1; transform: translateY(0); }
+ }
+
+ /* Forms */
+ .form-group {
+ margin-bottom: 1.4rem;
+ }
+
+ .form-group label {
+ display: block;
+ margin-bottom: 0.6rem;
+ color: var(--text-muted);
+ font-size: 0.9rem;
+ }
+
+ .form-group input {
+ width: 100%;
+ padding: 0.9rem;
+ border-radius: 8px;
+ border: 1px solid #334155;
+ background: rgba(15, 23, 42, 0.6);
+ color: #fff;
+ font-size: 1rem;
+ outline: none;
+ transition: border-color 0.3s;
+ }
+
+ .form-group input:focus {
+ border-color: var(--accent);
+ }
+
+ .btn {
+ background: var(--accent-gradient);
+ color: white;
+ border: none;
+ padding: 0.9rem 1.5rem;
+ border-radius: 8px;
+ cursor: pointer;
+ width: 100%;
+ font-size: 1rem;
+ font-weight: 700;
+ transition: transform 0.2s, box-shadow 0.2s;
+ box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+ }
+
+ .btn:hover {
+ transform: translateY(-2px);
+ box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+ }
+
+ .btn-danger {
+ background: linear-gradient(135deg, #ef4444, #dc2626);
+ box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+ }
+
+ .btn-danger:hover {
+ box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+ }
+
+ .toggle-auth {
+ margin-top: 1.2rem;
+ text-align: center;
+ color: #60a5fa;
+ cursor: pointer;
+ font-size: 0.95rem;
+ }
+ 
+ .toggle-auth:hover {
+ text-decoration: underline;
+ }
+
+ /* Profile Styles */
+ .profile-card {
+ text-align: center;
+ }
+
+ .avatar-container {
+ position: relative;
+ width: 140px;
+ height: 140px;
+ margin: 0 auto 1.5rem;
+ }
+
+ .avatar {
+ width: 100%;
+ height: 100%;
+ border-radius: 50%;
+ object-fit: cover;
+ border: 4px solid var(--accent);
+ box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+ }
+
+ .profile-actions {
+ display: flex;
+ flex-direction: column;
+ gap: 1rem;
+ max-width: 320px;
+ margin: 2rem auto 0;
+ }
+
+ /* Videos Grid */
+ .videos-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+ gap: 1.5rem;
+ margin-top: 1.5rem;
+ }
+
+ .video-card {
+ background: rgba(15, 23, 42, 0.6);
+ border-radius: 12px;
+ overflow: hidden;
+ border: 1px solid var(--card-border);
+ transition: transform 0.3s;
+ }
+
+ .video-card:hover {
+ transform: translateY(-4px);
+ }
+
+ .video-card video {
+ width: 100%;
+ height: 180px;
+ object-fit: cover;
+ background: #000;
+ }
+
+ .video-info {
+ padding: 1.2rem;
+ }
+
+ .video-info h3 {
+ font-size: 1.05rem;
+ margin-bottom: 0.8rem;
+ }
+
+ /* Notification */
+ .notification {
+ position: fixed;
+ bottom: 25px;
+ right: 25px;
+ background: var(--accent-gradient);
+ color: white;
+ padding: 1rem 1.8rem;
+ border-radius: 10px;
+ box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+ display: none;
+ z-index: 1000;
+ font-weight: 600;
+ animation: fadeIn 0.3s ease;
+ }
+
+ .about-text {
+ line-height: 1.9;
+ font-size: 1.05rem;
+ color: #cbd5e1;
+ text-align: justify;
+ }
+ </style>
+</head>
+<body>
+
+ <!-- Loading Screen -->
+ <div id="loader-wrapper">
+ <div class="brand-title">ARAMKOSTO</div>
+ <div class="loading-bar">
+ <div class="loading-progress"></div>
+ </div>
+ <div class="loading-text">Կայքը բեռնվում է...</div>
+ </div>
+
+ <!-- Header / Navbar -->
+ <header>
+ <div class="logo">AramKosto</div>
+ 
+ <!-- 3-Line Mobile Button -->
+ <div class="menu-toggle" id="mobile-menu-btn" onclick="toggleMobileMenu()">
+ <span></span>
+ <span></span>
+ <span></span>
+ </div>
+
+ <nav id="nav-menu">
+ <button id="nav-about" class="active" onclick="showTab('about')">AramKosto-ի մասին</button>
+ <button id="nav-videos" onclick="showTab('videos')">Բոլոր տեսանյութերը</button>
+ <button id="upload-tab-btn" style="display:none;" onclick="showTab('upload')">Բեռնել տեսանյութ</button>
+ <button id="auth-btn" onclick="showTab('auth')">Գրանցում</button>
+ </nav>
+ </header>
+
+ <!-- Main Container -->
+ <div class="container">
+
+ <!-- About Section -->
+ <div id="about" class="tab-content active">
+ <h2 style="margin-bottom: 1.2rem; color: #60a5fa;">AramKosto-ի մասին</h2>
+ <p class="about-text">
+ Արամ Կոստանյանը, ով լայն հասարակությանը հայտնի է AramKosto բեմական անունով, ծնվել է 2007 թվականի մարտի 29-ին։ Արմավիրի մարզի Լուկաշին գյուղում մեծացած Արամը դեռ մանկուց ցուցաբերել է սեր և նվիրվածություն երաժշտության հանդեպ, ինչն էլ դարձել է նրա ստեղծագործական ուղու հիմքը։<br><br>
+ Կրթությունը ստացել է Հունան Ավետիսյանի անվան միջնակարգ դպրոցում։ Ստեղծագործական հետաքրքրությունների շրջանակը Արամի մոտ ընդլայնվել է ժամանակի ընթացքում՝ ներառելով բլոգեռությունը, տեսանյութերի մոնտաժը և երաժշտական նախագծերը։ Հենց այս հետաքրքրությունների համադրությամբ էլ սկսվեց Արամի ինքնատիպ և հաջողակ ուղին։ Այսօր AramKosto-ն ոչ միայն ստեղծագործում է երաժշտության ասպարեզում, այլև իր տաղանդը դրսևորում է թվային հարթակներում՝ կառուցելով սեփական ոճն ու ճանապարհը մեդիա ոլորտում։
+ </p>
+ </div>
+
+ <!-- Auth Section (Register / Login) -->
+ <div id="auth" class="tab-content">
+ <!-- Register Form -->
+ <div id="register-form-box">
+ <h2 style="margin-bottom: 1.5rem;">Գրանցում</h2>
+ <form id="register-form" onsubmit="handleRegister(event)">
+ <div class="form-group">
+ <label>Անուն Ազգանուն</label>
+ <input type="text" id="reg-name" required placeholder="Օրինակ՝ Արամ Կոստանյան">
+ </div>
+ <div class="form-group">
+ <label>Գաղտնաբառ</label>
+ <input type="password" id="reg-pass" required>
+ </div>
+ <div class="form-group">
+ <label>Կրկնել գաղտնաբառը</label>
+ <input type="password" id="reg-pass-repeat" required>
+ </div>
+ <button type="submit" class="btn">Գրանցվել</button>
+ </form>
+ <div class="toggle-auth" onclick="toggleAuthMode('login')">Արդեն ունեմ հաշիվ</div>
+ </div>
+
+ <!-- Login Form -->
+ <div id="login-form-box" style="display: none;">
+ <h2 style="margin-bottom: 1.5rem;">Մուտք</h2>
+ <form id="login-form" onsubmit="handleLogin(event)">
+ <div class="form-group">
+ <label>Անուն Ազգանուն</label>
+ <input type="text" id="login-name" required placeholder="Aram Kostanyan">
+ </div>
+ <div class="form-group">
+ <label>Գաղտնաբառ</label>
+ <input type="password" id="login-pass" required>
+ </div>
+ <button type="submit" class="btn">Մուտք գործել</button>
+ </form>
+ <div class="toggle-auth" onclick="toggleAuthMode('register')">Չունեմ հաշիվ, գրանցվել</div>
+ </div>
+ </div>
+
+ <!-- Profile Section -->
+ <div id="profile" class="tab-content">
+ <div class="profile-card">
+ <div class="avatar-container">
+ <img id="profile-img" src="https://via.placeholder.com/150" class="avatar" alt="Profile Picture">
+ </div>
+ <h2 id="user-display-name">Անուն Ազգանուն</h2>
+ <p id="admin-badge" style="color: #60a5fa; display:none; font-weight:bold; margin-top:5px;">[ Ադմինիստրատոր ]</p>
+
+ <div class="profile-actions">
+ <label class="btn" style="background: #334155; box-shadow: none; cursor: pointer;">
+ Փոխել նկարը
+ <input type="file" accept="image/*" onchange="changeAvatar(event)" style="display: none;">
+ </label>
+ <button class="btn" onclick="changePassword()">Փոխել գաղտնաբառը</button>
+ <button class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: none;" onclick="logout()">Դուրս գալ հաշվից</button>
+ <button class="btn btn-danger" onclick="deleteAccount()">Ջնջել հաշիվը</button>
+ </div>
+ </div>
+ </div>
+
+ <!-- All Videos Section -->
+ <div id="videos" class="tab-content">
+ <h2 style="margin-bottom: 1rem;">Բոլոր տեսանյութերը</h2>
+ <div class="videos-grid" id="videos-container">
+ <p id="no-videos" style="color: var(--text-muted); grid-column: 1/-1;">Տեսանյութեր դեռ չկան:</p>
+ </div>
+ </div>
+
+ <!-- Admin Upload Section -->
+ <div id="upload" class="tab-content">
+ <h2>Բեռնել տեսանյութ (Ադմին)</h2>
+ <form onsubmit="handleVideoUpload(event)">
+ <div class="form-group" style="margin-top: 1.2rem;">
+ <label>Ընտրել տեսանյութը</label>
+ <input type="file" id="video-file" accept="video/*" required>
+ </div>
+ <div class="form-group">
+ <label>Տեսանյութի վերնագիրը</label>
+ <input type="text" id="video-title" required placeholder="Գրեք վերնագիրը">
+ </div>
+ <div class="form-group">
+ <label>Ընտրել տեսանյութի նկարը (Ընտրովի)</label>
+ <input type="file" id="video-poster" accept="image/*">
+ </div>
+ <button type="submit" class="btn">Բեռնել տեսանյութը</button>
+ </form>
+ </div>
+
+ </div>
+
+ <!-- Notification element -->
+ <div id="notification" class="notification"></div>
+
+ <script>
+ // Toggle Mobile Menu
+ function toggleMobileMenu() {
+ const nav = document.getElementById('nav-menu');
+ const toggleBtn = document.getElementById('mobile-menu-btn');
+ nav.classList.toggle('active');
+ toggleBtn.classList.toggle('open');
+ }
+
+ // Close mobile menu on tab selection
+ function closeMobileMenu() {
+ const nav = document.getElementById('nav-menu');
+ const toggleBtn = document.getElementById('mobile-menu-btn');
+ nav.classList.remove('active');
+ toggleBtn.classList.remove('open');
+ }
+
+ // Intro Animation Hide & Initialization
+ window.addEventListener('DOMContentLoaded', () => {
+ setTimeout(() => {
+ const loader = document.getElementById('loader-wrapper');
+ loader.style.opacity = '0';
+ setTimeout(() => {
+ loader.style.display = 'none';
+ }, 800);
+ }, 2000);
+
+ loadStoredState();
+ });
+
+ // App State
+ let currentUser = null;
+ let videos = [];
+
+ function loadStoredState() {
+ const savedVideos = localStorage.getItem('ak_videos');
+ if (savedVideos) {
+ videos = JSON.parse(savedVideos);
+ }
+
+ const savedUser = localStorage.getItem('ak_current_user');
+ if (savedUser) {
+ currentUser = JSON.parse(savedUser);
+ applyUserLoginUI(currentUser);
+ }
+
+ renderVideos();
+ }
+
+ // Tab Switching
+ function showTab(tabId) {
+ document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+ document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+ 
+ document.getElementById(tabId).classList.add('active');
+ 
+ const activeNavBtn = document.getElementById(`nav-${tabId}`) || (tabId === 'profile' || tabId === 'auth' ? document.getElementById('auth-btn') : null);
+ if(activeNavBtn) activeNavBtn.classList.add('active');
+
+ closeMobileMenu();
+ }
+
+ function toggleAuthMode(mode) {
+ if(mode === 'login') {
+ document.getElementById('register-form-box').style.display = 'none';
+ document.getElementById('login-form-box').style.display = 'block';
+ } else {
+ document.getElementById('register-form-box').style.display = 'block';
+ document.getElementById('login-form-box').style.display = 'none';
+ }
+ }
+
+ // Notifications
+ function notify(message) {
+ const notif = document.getElementById('notification');
+ notif.innerText = message;
+ notif.style.display = 'block';
+ setTimeout(() => {
+ notif.style.display = 'none';
+ }, 3000);
+ }
+
+ // Registration Logic
+ function handleRegister(e) {
+ e.preventDefault();
+ const name = document.getElementById('reg-name').value;
+ const pass = document.getElementById('reg-pass').value;
+ const passRep = document.getElementById('reg-pass-repeat').value;
+
+ if (pass !== passRep) {
+ alert('Գաղտնաբառերը չեն համընկնում');
+ return;
+ }
+
+ const userData = {
+ name: name,
+ pass: pass,
+ isAdmin: (name === 'Aram Kostanyan' && pass === 'AramAren'),
+ avatar: 'https://via.placeholder.com/150'
+ };
+
+ loginUser(userData);
+ notify('Դուք հաջողությամբ գրանցվեցիք');
+ }
+
+ // Login Logic
+ function handleLogin(e) {
+ e.preventDefault();
+ const name = document.getElementById('login-name').value;
+ const pass = document.getElementById('login-pass').value;
+
+ const isAdmin = (name === 'Aram Kostanyan' && pass === 'AramAren');
+
+ const userData = {
+ name: name,
+ pass: pass,
+ isAdmin: isAdmin,
+ avatar: 'https://via.placeholder.com/150'
+ };
+
+ loginUser(userData);
+ notify('Ավտոմատ ծանուցում. Դուք հաջողությամբ մուտք գործեցիք համակարգ');
+ }
+
+ function loginUser(user) {
+ currentUser = user;
+ localStorage.setItem('ak_current_user', JSON.stringify(currentUser));
+ applyUserLoginUI(user);
+ showTab('profile');
+ }
+
+ function applyUserLoginUI(user) {
+ const authBtn = document.getElementById('auth-btn');
+ authBtn.innerText = 'Իմ պրոֆիլը';
+ authBtn.onclick = () => showTab('profile');
+
+ document.getElementById('user-display-name').innerText = user.name;
+ document.getElementById('profile-img').src = user.avatar;
+
+ if(user.isAdmin) {
+ document.getElementById('upload-tab-btn').style.display = 'inline-block';
+ document.getElementById('admin-badge').style.display = 'block';
+ } else {
+ document.getElementById('upload-tab-btn').style.display = 'none';
+ document.getElementById('admin-badge').style.display = 'none';
+ }
+
+ renderVideos();
+ }
+
+ function logout() {
+ currentUser = null;
+ localStorage.removeItem('ak_current_user');
+
+ const authBtn = document.getElementById('auth-btn');
+ authBtn.innerText = 'Գրանցում';
+ authBtn.onclick = () => showTab('auth');
+ document.getElementById('upload-tab-btn').style.display = 'none';
+ 
+ showTab('auth');
+ notify('Դուք դուրս եկաք հաշվից');
+ renderVideos();
+ }
+
+ function deleteAccount() {
+ if(confirm('Ուզու՞մ եք ջնջել հաշիվը:')) {
+ logout();
+ notify('Հաշիվը ջնջված է');
+ }
+ }
+
+ function changePassword() {
+ const newPass = prompt('Գրեք նոր գաղտնաբառը․');
+ if(newPass) {
+ currentUser.pass = newPass;
+ localStorage.setItem('ak_current_user', JSON.stringify(currentUser));
+ notify('Գաղտնաբառը հաջողությամբ փոխվեց');
+ }
+ }
+
+ function changeAvatar(e) {
+ const file = e.target.files[0];
+ if(file) {
+ const reader = new FileReader();
+ reader.onload = function(evt) {
+ const base64Img = evt.target.result;
+ document.getElementById('profile-img').src = base64Img;
+ currentUser.avatar = base64Img;
+ localStorage.setItem('ak_current_user', JSON.stringify(currentUser));
+ notify('Պրոֆիլի նկարը փոխվեց');
+ };
+ reader.readAsDataURL(file);
+ }
+ }
+
+ // Admin Video Upload
+ function handleVideoUpload(e) {
+ e.preventDefault();
+ if(!currentUser || !currentUser.isAdmin) return;
+
+ const videoFile = document.getElementById('video-file').files[0];
+ const title = document.getElementById('video-title').value;
+ const posterFile = document.getElementById('video-poster').files[0];
+
+ if(!videoFile) return;
+
+ const videoReader = new FileReader();
+ videoReader.onload = function(evt) {
+ const videoBase64 = evt.target.result;
+
+ if(posterFile) {
+ const posterReader = new FileReader();
+ posterReader.onload = function(pEvt) {
+ saveVideo(title, videoBase64, pEvt.target.result);
+ };
+ posterReader.readAsDataURL(posterFile);
+ } else {
+ saveVideo(title, videoBase64, '');
+ }
+ };
+ videoReader.readAsDataURL(videoFile);
+
+ e.target.reset();
+ }
+
+ function saveVideo(title, src, poster) {
+ videos.push({
+ id: Date.now(),
+ title: title,
+ src: src,
+ poster: poster
+ });
+
+ localStorage.setItem('ak_videos', JSON.stringify(videos));
+ notify('Տեսանյութը հաջողությամբ բեռնվեց');
+ renderVideos();
+ showTab('videos');
+ }
+
+ function deleteVideo(id) {
+ videos = videos.filter(v => v.id !== id);
+ localStorage.setItem('ak_videos', JSON.stringify(videos));
+ renderVideos();
+ notify('Տեսանյութը ջնջվեց');
+ }
+
+ function renderVideos() {
+ const container = document.getElementById('videos-container');
+ container.innerHTML = '';
+
+ if(videos.length === 0) {
+ container.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1;">Տեսանյութեր դեռ չկան:</p>';
+ return;
+ }
+
+ videos.forEach(v => {
+ const card = document.createElement('div');
+ card.className = 'video-card';
+ card.innerHTML = `
+ <video controls ${v.poster ? `poster="${v.poster}"` : ''}>
+ <source src="${v.src}">
+ </video>
+ <div class="video-info">
+ <h3>${v.title}</h3>
+ ${currentUser && currentUser.isAdmin ? `<button class="btn btn-danger" style="padding: 0.5rem;" onclick="deleteVideo(${v.id})">Ջնջել</button>` : ''}
+ </div>
+ `;
+ container.appendChild(card);
+ });
+ }
+ </script>
+</body>
+</html>
